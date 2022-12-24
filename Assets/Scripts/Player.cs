@@ -7,6 +7,7 @@ public class Player : MonoBehaviour
     public static Player PlayerInstance;
 
     private string m_playerName;
+    private int m_playerScore;
 
     public string getPlayerName()
     {
@@ -16,6 +17,16 @@ public class Player : MonoBehaviour
     public void setPlayerName(string playerName)
     {
         this.m_playerName = playerName;
+    }
+
+    public int getPlayerScore()
+    {
+        return m_playerScore;
+    }
+
+    public void addPlayerPoint(int points)
+    {
+        this.m_playerScore += points;
     }
 
     void Awake()
@@ -32,3 +43,4 @@ public class Player : MonoBehaviour
         }
     }
 }
+

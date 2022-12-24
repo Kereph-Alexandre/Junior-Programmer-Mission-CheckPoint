@@ -13,12 +13,21 @@ public class MainManager : MonoBehaviour
     public Rigidbody Ball;
 
     public Text ScoreText;
+    public Text HighScoreText;
     public GameObject GameOverText;
 
     private bool m_Started = false;
     private int m_Points;
 
     private bool m_GameOver = false;
+
+    public string highScorePlayerNameDisplay;
+    public int highScorePlayerScoreDisplay;
+
+    void Awake()
+    {
+        LoadHighScore();
+    }
 
 
     // Start is called before the first frame update
@@ -66,13 +75,56 @@ public class MainManager : MonoBehaviour
 
     void AddPoint(int point)
     {
-        m_Points += point;
-        ScoreText.text = $"Score for {Player.PlayerInstance.getPlayerName()}: {m_Points}";
+        Player.PlayerInstance.addPlayerPoint(point);
+        ScoreText.text = $"Score for {Player.PlayerInstance.getPlayerName()}: {Player.PlayerInstance.getPlayerScore()}";
     }
 
     public void GameOver()
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
+
+        Debug.Log("Sauvegarde de HighScore");
+        SaveHighScore();
+    }
+
+    [System.Serializable]
+    class GameData
+    {
+        public string highScorePlayerName;
+        public int highScorePlayerScore;
+    }
+
+    public void SaveHighScore()
+    {
+        GameData gameData = new GameData();
+
+        gameData.highScorePlayerName = Player.PlayerInstance.getPlayerName();
+        gameData.highScorePlayerScore = Player.PlayerInstance.getPlayerScore();
+
+        string json = JsonUtility.ToJson(gameData);
+
+        Debug.Log(json);
+
+        File.WriteAllText(Application.persistentDataPath + "/savefile.json", json);
+    }
+
+    public void LoadHighScore()
+    {
+        string path = Application.persistentDataPath + "/savefile.json";
+        if (File.Exists(path))
+        {
+            string json = File.ReadAllText(path);
+            GameData data = JsonUtility.FromJson<GameData>(json);
+
+            highScorePlayerNameDisplay = data.highScorePlayerName;
+            highScorePlayerScoreDisplay = data.highScorePlayerScore;
+        }
+    }
+
+
+    public void DisplayHighScore()
+    {
+        HighScoreText.text = $"Best Score : {this.highScorePlayerNameDisplay}: {this.highScorePlayerScoreDisplay}";
     }
 }
