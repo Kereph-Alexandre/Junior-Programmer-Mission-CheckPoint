@@ -24,9 +24,14 @@ public class MainManager : MonoBehaviour
     public string highScorePlayerNameDisplay;
     public int highScorePlayerScoreDisplay;
 
+    public bool needToSave;
+
     void Awake()
     {
         LoadHighScore();
+
+        needToSave = false;
+
         DisplayHighScore();
     }
 
@@ -78,6 +83,16 @@ public class MainManager : MonoBehaviour
     {
         Player.PlayerInstance.addPlayerPoint(point);
         ScoreText.text = $"Score for {Player.PlayerInstance.getPlayerName()}: {Player.PlayerInstance.getPlayerScore()}";
+
+        if (Player.PlayerInstance.getPlayerScore() > highScorePlayerScoreDisplay)
+        {
+            highScorePlayerNameDisplay = Player.PlayerInstance.getPlayerName();
+            highScorePlayerScoreDisplay = Player.PlayerInstance.getPlayerScore();
+
+            DisplayHighScore();
+
+            needToSave = true;
+        }
     }
 
     public void GameOver()
@@ -85,8 +100,10 @@ public class MainManager : MonoBehaviour
         m_GameOver = true;
         GameOverText.SetActive(true);
 
-        Debug.Log("Sauvegarde de HighScore");
-        SaveHighScore();
+        if (needToSave)
+        {
+            SaveHighScore();
+        }
     }
 
     [System.Serializable]
@@ -104,8 +121,6 @@ public class MainManager : MonoBehaviour
         gameData.highScorePlayerScore = Player.PlayerInstance.getPlayerScore();
 
         string json = JsonUtility.ToJson(gameData);
-
-        Debug.Log(json);
 
         File.WriteAllText(Application.persistentDataPath + "/savefile.json", json);
     }
