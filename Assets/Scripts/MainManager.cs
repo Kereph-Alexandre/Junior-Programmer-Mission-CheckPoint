@@ -27,6 +27,7 @@ public class MainManager : MonoBehaviour
     void Awake()
     {
         LoadHighScore();
+        DisplayHighScore();
     }
 
 
@@ -119,6 +120,7 @@ public class MainManager : MonoBehaviour
 
             highScorePlayerNameDisplay = data.highScorePlayerName;
             highScorePlayerScoreDisplay = data.highScorePlayerScore;
+
         }
     }
 
