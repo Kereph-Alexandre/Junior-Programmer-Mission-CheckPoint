@@ -24,6 +24,11 @@ public class Player : MonoBehaviour
         return m_playerScore;
     }
 
+    public void resetPlayerScore()
+    {
+        this.m_playerScore = 0;
+    }
+
     public void addPlayerPoint(int points)
     {
         this.m_playerScore += points;
