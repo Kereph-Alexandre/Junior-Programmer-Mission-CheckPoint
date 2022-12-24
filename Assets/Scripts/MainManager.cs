@@ -8,24 +8,31 @@ using System.IO;
 
 public class MainManager : MonoBehaviour
 {
+    // Needed to create the stage 
     public Brick BrickPrefab;
-    public int LineCount = 6;
     public Rigidbody Ball;
+    public int LineCount = 6;
 
+    // Needed to display current score, highscore and gameover
     public Text ScoreText;
     public Text HighScoreText;
     public GameObject GameOverText;
 
+    // Game state related attributes
     private bool m_Started = false;
-    private int m_Points;
-
     private bool m_GameOver = false;
 
+    // Storing Highscore playerName and score; 
     public string highScorePlayerNameDisplay;
     public int highScorePlayerScoreDisplay;
 
+    // trigger saveHighScoreMethod
     public bool needToSave;
 
+    /* AWAKE
+    Loads stored Highscore, 
+    Refreshes the highcore display text,  
+    disables the SaveHighScore method call.   */
     void Awake()
     {
         LoadHighScore();
@@ -37,6 +44,7 @@ public class MainManager : MonoBehaviour
 
 
     // Start is called before the first frame update
+    /* Instantiates the target blocks, with their color and point value. */
     void Start()
     {
         const float step = 0.6f;
@@ -55,6 +63,10 @@ public class MainManager : MonoBehaviour
         }
     }
 
+    /* UPDATE called every frame
+    starts the game on space input, 
+    Sets the direction and force of the ball's movement, 
+    at gameOver, if space is pressed : reset the Player's current score and reloads the scene */
     private void Update()
     {
         if (!m_Started)
@@ -80,6 +92,9 @@ public class MainManager : MonoBehaviour
         }
     }
 
+    /* Add points to the player's score, 
+    updates the HUD, 
+    triggers Highscore save if current score is higher. */
     void AddPoint(int point)
     {
         Player.PlayerInstance.addPlayerPoint(point);
@@ -96,6 +111,8 @@ public class MainManager : MonoBehaviour
         }
     }
 
+    /* Displays gameOver text, 
+    Saves Highscore if needed. */
     public void GameOver()
     {
         m_GameOver = true;
@@ -114,6 +131,7 @@ public class MainManager : MonoBehaviour
         public int highScorePlayerScore;
     }
 
+    // Stores Name and score of the player in Json file
     public void SaveHighScore()
     {
         GameData gameData = new GameData();
@@ -126,6 +144,7 @@ public class MainManager : MonoBehaviour
         File.WriteAllText(Application.persistentDataPath + "/savefile.json", json);
     }
 
+    // Load name and socre of the highscore from json file
     public void LoadHighScore()
     {
         string path = Application.persistentDataPath + "/savefile.json";
@@ -140,7 +159,7 @@ public class MainManager : MonoBehaviour
         }
     }
 
-
+    // Refreshes HUD's Highscore
     public void DisplayHighScore()
     {
         HighScoreText.text = $"Best Score : {this.highScorePlayerNameDisplay}: {this.highScorePlayerScoreDisplay}";
