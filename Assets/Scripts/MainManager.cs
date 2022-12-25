@@ -29,12 +29,17 @@ public class MainManager : MonoBehaviour
     // trigger saveHighScoreMethod
     public bool needToSave;
 
+    // Needed to save several highscores
+    private GameData data;
+
     /* AWAKE
     Loads stored Highscore, 
     Refreshes the highcore display text,  
     disables the SaveHighScore method call.   */
     void Awake()
     {
+        data = new GameData();
+
         LoadHighScore();
 
         needToSave = false;
@@ -47,6 +52,7 @@ public class MainManager : MonoBehaviour
     /* Instantiates the target blocks, with their color and point value. */
     void Start()
     {
+        Debug.Log(Application.persistentDataPath);
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
 
@@ -127,19 +133,22 @@ public class MainManager : MonoBehaviour
     [System.Serializable]
     class GameData
     {
-        public string highScorePlayerName;
-        public int highScorePlayerScore;
+        public List<HighScore> highScores = new List<HighScore>();
     }
 
     // Stores Name and score of the player in Json file
     public void SaveHighScore()
     {
-        GameData gameData = new GameData();
+        HighScore newHighScore = new HighScore();
 
-        gameData.highScorePlayerName = Player.PlayerInstance.getPlayerName();
-        gameData.highScorePlayerScore = Player.PlayerInstance.getPlayerScore();
+        newHighScore.PlayerName = Player.PlayerInstance.getPlayerName();
+        newHighScore.PlayerScore = Player.PlayerInstance.getPlayerScore();
 
-        string json = JsonUtility.ToJson(gameData);
+        data.highScores.Add(newHighScore);
+
+        Debug.Log(data);
+
+        string json = JsonUtility.ToJson(data);
 
         File.WriteAllText(Application.persistentDataPath + "/savefile.json", json);
     }
@@ -151,17 +160,27 @@ public class MainManager : MonoBehaviour
         if (File.Exists(path))
         {
             string json = File.ReadAllText(path);
-            GameData data = JsonUtility.FromJson<GameData>(json);
+            GameData gameData = JsonUtility.FromJson<GameData>(json);
 
-            highScorePlayerNameDisplay = data.highScorePlayerName;
-            highScorePlayerScoreDisplay = data.highScorePlayerScore;
+            data = gameData;
 
+            data.highScores.Sort((player1, player2) => player1.PlayerScore.CompareTo(player2.PlayerScore));
+            data.highScores.Reverse();
         }
     }
 
     // Refreshes HUD's Highscore
     public void DisplayHighScore()
     {
+        highScorePlayerNameDisplay = data.highScores[0].PlayerName;
+        highScorePlayerScoreDisplay = data.highScores[0].PlayerScore;
         HighScoreText.text = $"Best Score : {this.highScorePlayerNameDisplay}: {this.highScorePlayerScoreDisplay}";
     }
+}
+
+[System.Serializable]
+class HighScore
+{
+    public string PlayerName;
+    public int PlayerScore;
 }
