@@ -26,9 +26,6 @@ public class MainManager : MonoBehaviour
     public string highScorePlayerNameDisplay;
     public int highScorePlayerScoreDisplay;
 
-    // trigger saveHighScoreMethod
-    public bool needToSave;
-
     // Needed to save several highscores
     private GameData data;
 
@@ -41,8 +38,6 @@ public class MainManager : MonoBehaviour
         data = new GameData();
 
         LoadHighScore();
-
-        needToSave = false;
 
         DisplayHighScore();
     }
@@ -112,8 +107,6 @@ public class MainManager : MonoBehaviour
             highScorePlayerScoreDisplay = Player.PlayerInstance.getPlayerScore();
 
             DisplayHighScore();
-
-            needToSave = true;
         }
     }
 
@@ -124,10 +117,7 @@ public class MainManager : MonoBehaviour
         m_GameOver = true;
         GameOverText.SetActive(true);
 
-        if (needToSave)
-        {
-            SaveHighScore();
-        }
+        SaveHighScore();
     }
 
     [System.Serializable]
@@ -144,9 +134,18 @@ public class MainManager : MonoBehaviour
         newHighScore.PlayerName = Player.PlayerInstance.getPlayerName();
         newHighScore.PlayerScore = Player.PlayerInstance.getPlayerScore();
 
+        // Add
         data.highScores.Add(newHighScore);
 
-        Debug.Log(data);
+        // Sort
+        data.highScores.Sort((player1, player2) => player1.PlayerScore.CompareTo(player2.PlayerScore));
+        data.highScores.Reverse();
+
+        //Si plus que 10, on cut
+        while (data.highScores.Count > 10)
+        {
+            data.highScores.Remove(data.highScores[data.highScores.Count - 1]);
+        }
 
         string json = JsonUtility.ToJson(data);
 
@@ -167,13 +166,14 @@ public class MainManager : MonoBehaviour
             data.highScores.Sort((player1, player2) => player1.PlayerScore.CompareTo(player2.PlayerScore));
             data.highScores.Reverse();
         }
+
+        highScorePlayerNameDisplay = data.highScores[0].PlayerName;
+        highScorePlayerScoreDisplay = data.highScores[0].PlayerScore;
     }
 
     // Refreshes HUD's Highscore
     public void DisplayHighScore()
     {
-        highScorePlayerNameDisplay = data.highScores[0].PlayerName;
-        highScorePlayerScoreDisplay = data.highScores[0].PlayerScore;
         HighScoreText.text = $"Best Score : {this.highScorePlayerNameDisplay}: {this.highScorePlayerScoreDisplay}";
     }
 }
