@@ -26,27 +26,14 @@ public class MainManager : MonoBehaviour
     public string highScorePlayerNameDisplay;
     public int highScorePlayerScoreDisplay;
 
-    // Needed to save several highscores
-    private GameData data;
-
-    /* AWAKE
-    Loads stored Highscore, 
-    Refreshes the highcore display text,  
-    disables the SaveHighScore method call.   */
-    void Awake()
-    {
-        data = new GameData();
-
-        LoadHighScore();
-
-        DisplayHighScore();
-    }
-
-
     // Start is called before the first frame update
-    /* Instantiates the target blocks, with their color and point value. */
+    /* Instantiates the target blocks, with their color and point value. 
+    Loads stored Highscore, 
+    Refreshes the highcore display text,  */
     void Start()
     {
+        LoadHighScore();
+        DisplayHighScore();
         Debug.Log(Application.persistentDataPath);
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
@@ -83,14 +70,6 @@ public class MainManager : MonoBehaviour
                 Ball.AddForce(forceDir * 2.0f, ForceMode.VelocityChange);
             }
         }
-        else if (m_GameOver)
-        {
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
-                Player.PlayerInstance.resetPlayerScore();
-                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-            }
-        }
     }
 
     /* Add points to the player's score, 
@@ -115,15 +94,16 @@ public class MainManager : MonoBehaviour
     public void GameOver()
     {
         m_GameOver = true;
+
+        Invoke("GameOverScene", 2.0f);
         GameOverText.SetActive(true);
 
         SaveHighScore();
     }
 
-    [System.Serializable]
-    class GameData
+    public void GameOverScene()
     {
-        public List<HighScore> highScores = new List<HighScore>();
+        SceneManager.LoadScene(2);
     }
 
     // Stores Name and score of the player in Json file
@@ -135,19 +115,19 @@ public class MainManager : MonoBehaviour
         newHighScore.PlayerScore = Player.PlayerInstance.getPlayerScore();
 
         // Add
-        data.highScores.Add(newHighScore);
+        DataManager.dataManager.data.highScores.Add(newHighScore);
 
         // Sort
-        data.highScores.Sort((player1, player2) => player1.PlayerScore.CompareTo(player2.PlayerScore));
-        data.highScores.Reverse();
+        DataManager.dataManager.data.highScores.Sort((player1, player2) => player1.PlayerScore.CompareTo(player2.PlayerScore));
+        DataManager.dataManager.data.highScores.Reverse();
 
         //Si plus que 10, on cut
-        while (data.highScores.Count > 10)
+        while (DataManager.dataManager.data.highScores.Count > 5)
         {
-            data.highScores.Remove(data.highScores[data.highScores.Count - 1]);
+            DataManager.dataManager.data.highScores.Remove(DataManager.dataManager.data.highScores[DataManager.dataManager.data.highScores.Count - 1]);
         }
 
-        string json = JsonUtility.ToJson(data);
+        string json = JsonUtility.ToJson(DataManager.dataManager.data);
 
         File.WriteAllText(Application.persistentDataPath + "/savefile.json", json);
     }
@@ -161,14 +141,14 @@ public class MainManager : MonoBehaviour
             string json = File.ReadAllText(path);
             GameData gameData = JsonUtility.FromJson<GameData>(json);
 
-            data = gameData;
+            DataManager.dataManager.data = gameData;
 
-            data.highScores.Sort((player1, player2) => player1.PlayerScore.CompareTo(player2.PlayerScore));
-            data.highScores.Reverse();
+            DataManager.dataManager.data.highScores.Sort((player1, player2) => player1.PlayerScore.CompareTo(player2.PlayerScore));
+            DataManager.dataManager.data.highScores.Reverse();
         }
 
-        highScorePlayerNameDisplay = data.highScores[0].PlayerName;
-        highScorePlayerScoreDisplay = data.highScores[0].PlayerScore;
+        highScorePlayerNameDisplay = DataManager.dataManager.data.highScores[0].PlayerName;
+        highScorePlayerScoreDisplay = DataManager.dataManager.data.highScores[0].PlayerScore;
     }
 
     // Refreshes HUD's Highscore
@@ -177,9 +157,14 @@ public class MainManager : MonoBehaviour
         HighScoreText.text = $"Best Score : {this.highScorePlayerNameDisplay}: {this.highScorePlayerScoreDisplay}";
     }
 }
+[System.Serializable]
+public class GameData
+{
+    public List<HighScore> highScores = new List<HighScore>();
+}
 
 [System.Serializable]
-class HighScore
+public class HighScore
 {
     public string PlayerName;
     public int PlayerScore;
