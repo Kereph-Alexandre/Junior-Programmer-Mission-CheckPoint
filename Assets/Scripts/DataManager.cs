@@ -7,7 +7,7 @@ public class DataManager : MonoBehaviour
     public static DataManager dataManager;
 
     public GameData data;
-    // REste a faire : Remplacer data<GameData> de MainManager par dataManager.data<GameData> de DataManager
+    private Color m_selectedColor { get; set; }
 
     void Awake()
     {
@@ -22,4 +22,11 @@ public class DataManager : MonoBehaviour
             DontDestroyOnLoad(gameObject);
         }
     }
+
+    public void setSelectedColor(Color color)
+    {
+        this.m_selectedColor = color;
+    }
+
+
 }
