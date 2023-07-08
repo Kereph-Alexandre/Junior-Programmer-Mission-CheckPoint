@@ -49,5 +49,7 @@ public class gameOver : MonoBehaviour
     {
         Debug.Log("Click Retry");
         SceneManager.LoadScene(1);
+
+        Player.PlayerInstance.resetPlayerScore();
     }
 }
