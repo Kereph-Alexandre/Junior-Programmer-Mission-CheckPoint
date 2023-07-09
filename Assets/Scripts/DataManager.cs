@@ -28,5 +28,10 @@ public class DataManager : MonoBehaviour
         this.m_selectedColor = color;
     }
 
+    public Color getSelectedColor()
+    {
+        return m_selectedColor;
+    }
+
 
 }

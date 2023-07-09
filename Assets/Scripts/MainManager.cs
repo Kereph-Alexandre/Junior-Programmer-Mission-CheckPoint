@@ -145,10 +145,14 @@ public class MainManager : MonoBehaviour
 
             DataManager.dataManager.data.highScores.Sort((player1, player2) => player1.PlayerScore.CompareTo(player2.PlayerScore));
             DataManager.dataManager.data.highScores.Reverse();
+
         }
 
-        highScorePlayerNameDisplay = DataManager.dataManager.data.highScores[0].PlayerName;
-        highScorePlayerScoreDisplay = DataManager.dataManager.data.highScores[0].PlayerScore;
+        if (DataManager.dataManager.data.highScores.Count > 0)
+        {
+            highScorePlayerNameDisplay = DataManager.dataManager.data.highScores[0].PlayerName;
+            highScorePlayerScoreDisplay = DataManager.dataManager.data.highScores[0].PlayerScore;
+        }
     }
 
     // Refreshes HUD's Highscore
